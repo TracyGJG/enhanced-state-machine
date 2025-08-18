@@ -1,0 +1,28 @@
+{
+  "name": "simple-state-machine",
+  "version": "1.0.0",
+  "description": "Minimal State Machine",
+  "author": "Tracy-Gregory Gilmore",
+  "license": "CC0-1.0",
+  "main": "index.js",
+  "type": "module",
+  "keywords": [
+    "State-machine"
+  ],
+  "scripts": {
+    "test": "node --test",
+    "watch": "node --watch",
+    "coverage": "node --test --experimental-test-coverage"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/TracyGJG/simple-state-machine.git"
+  },
+  "bugs": {
+    "url": "https://github.com/TracyGJG/simple-state-machine/issues"
+  },
+  "homepage": "https://github.com/TracyGJG/simple-state-machine#readme",
+  "engines": {
+    "node": ">=20.0.0"
+  }
+}

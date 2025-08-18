@@ -1,0 +1,112 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>State Machine</title>
+    <link rel="icon" href="/favicon.ico" type="image/png" />
+    <style>
+      body {
+        position: relative;
+        display: grid;
+        grid-template-rows: 3em auto;
+        height: 100vh;
+        margin: 0;
+        & > * {
+          font-family: Arial, Helvetica, sans-serif;
+        }
+      }
+      nav {
+        padding-inline: 0.25em;
+      }
+      button {
+        margin: 0.5rem 0.25em;
+        height: 2rem;
+        padding: 0 1rem;
+        font-size: 1rem;
+
+        &:hover {
+          color: #fff;
+          background-color: #777;
+        }
+      }
+      main {
+        display: grid;
+        grid-template-columns: 8em 1fr;
+        align-content: start;
+        margin: 0 0.5em 0.5em;
+        border: 2px inset;
+        overflow: auto;
+
+        & > * {
+          box-sizing: border-box;
+          border: 1px solid;
+          padding: 0.25em 0.5em;
+          height: 2.5em;
+          align-content: center;
+
+          &:nth-child(-n + 2) {
+            font-weight: bold;
+            background-color: #eee;
+          }
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <nav id="$nav">
+      <button>Next</button>
+      <button>Back</button>
+      <button>Again</button>
+      <button>Revert</button>
+    </nav>
+    <main id="$main"></main>
+
+    <script type="module">
+      import StateMachine from './index.js';
+      import Actions from './actions.js';
+      import StateModel from './stateModel.json' with { type: 'json'};
+
+      const PAYLOAD = {count: 0};
+      const { triggerEvent, revertState, getHistory } = StateMachine(StateModel, Actions(), PAYLOAD);
+
+      report(getHistory());
+      $nav.addEventListener('click', (evt) => {
+        if (evt.target.tagName === "BUTTON") {
+          const trigger = evt.target.textContent;
+          if ('Revert' === trigger) {
+            console.log(`Revert: ${revertState(PAYLOAD)}`);
+          }
+          else {
+            triggerEvent(trigger.toLowerCase(), PAYLOAD);
+          }
+          report(getHistory());
+        }
+      });
+
+      function report(history) {
+        $main.innerHTML = '';
+        reportLine('Action', 'Payload');
+        history.forEach(({state, payload}) => reportLine(state, payload));
+      }
+
+      function reportLine(state, payload) {
+        $main.innerHTML += `<div>${state}</div>
+        <div>${payload}</div>`;
+      }
+    </script>
+  </body>
+</html>
+
+<!--
+  *       Init    0
+  Next    Tic     1
+  Next    Tac     2
+  Back    Tic     3
+  Again   Tic     4
+  Next    Tac     5
+  Back    Init    6
+  Next    Tic     7
+  Next    Tac     9
+  Next    Toe     10
+-->

@@ -1,0 +1,18 @@
+{
+  "*": "init",
+  "tic": {
+    "next": [{ "state": "tac" }],
+    "again": [{ "state": "tic" }]
+  },
+  "init": {
+    "next": [{ "state": "tic" }]
+  },
+  "tac": {
+    "next": [{ "state": "toe" }],
+    "back": [
+      { "state": "tic", "guard": "tac_back_even" },
+      { "state": "init", "guard": "tac_back_odd" }
+    ]
+  },
+  "toe": {}
+}
