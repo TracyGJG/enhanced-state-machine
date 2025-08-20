@@ -6,12 +6,14 @@ export default function StateMachine(stateModel, actions, payload = {}) {
   return {
     triggerEvent(_trigger, _payload) {
       const transitions = stateModel[_currentState][_trigger];
-      if (!transitions) return _payload;
+      if (!transitions)
+        return `Error: The trigger '${_trigger}' could not be found for the current state of '${_currentState}'.`;
 
       const nextState = transitions.find(
         ({ guard }) => !guard || actions[_currentState].guards[guard](_payload)
       )?.state;
-      if (!nextState) return _payload;
+      if (!nextState)
+        return `Error: The trigger '${_trigger}' did not match a transistion for the current state of '${_currentState}'.`;
 
       actions[_currentState].exit?.(_payload);
       _currentState = nextState;
@@ -35,3 +37,5 @@ export default function StateMachine(stateModel, actions, payload = {}) {
     });
   }
 }
+
+export function validationModel(stateModel, actions) {}

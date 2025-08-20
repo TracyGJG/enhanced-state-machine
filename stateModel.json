@@ -9,6 +9,7 @@
   },
   "tac": {
     "next": [{ "state": "toe" }],
+    "badGuard": [{ "state": "toe", "guard": "tac_bad_guard" }],
     "back": [
       { "state": "tic", "guard": "tac_back_even" },
       { "state": "init", "guard": "tac_back_odd" }

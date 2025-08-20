@@ -63,21 +63,25 @@
     <main id="$main"></main>
 
     <script type="module">
-      import StateMachine from './index.js';
+      import StateMachine from './StateMachine.js';
       import Actions from './actions.js';
-      import StateModel from './stateModel.json' with { type: 'json'};
+      import StateModel from './stateModel.js';
 
-      const PAYLOAD = {count: 0};
-      const { triggerEvent, revertState, getHistory } = StateMachine(StateModel, Actions(), PAYLOAD);
+      const PAYLOAD = { count: 0 };
+      // console.log(validationModel(StateModel, Actions) ? 'isValid' : 'isInvalid');
+      const { triggerEvent, revertState, getHistory } = StateMachine(
+        StateModel,
+        Actions,
+        PAYLOAD
+      );
 
       report(getHistory());
       $nav.addEventListener('click', (evt) => {
-        if (evt.target.tagName === "BUTTON") {
+        if (evt.target.tagName === 'BUTTON') {
           const trigger = evt.target.textContent;
           if ('Revert' === trigger) {
             console.log(`Revert: ${revertState(PAYLOAD)}`);
-          }
-          else {
+          } else {
             triggerEvent(trigger.toLowerCase(), PAYLOAD);
           }
           report(getHistory());
@@ -87,7 +91,7 @@
       function report(history) {
         $main.innerHTML = '';
         reportLine('Action', 'Payload');
-        history.forEach(({state, payload}) => reportLine(state, payload));
+        history.forEach(({ state, payload }) => reportLine(state, payload));
       }
 
       function reportLine(state, payload) {
@@ -97,16 +101,3 @@
     </script>
   </body>
 </html>
-
-<!--
-  *       Init    0
-  Next    Tic     1
-  Next    Tac     2
-  Back    Tic     3
-  Again   Tic     4
-  Next    Tac     5
-  Back    Init    6
-  Next    Tic     7
-  Next    Tac     9
-  Next    Toe     10
--->
