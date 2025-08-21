@@ -1,16 +1,16 @@
-import { describe, test } from 'node:test';
+import { describe, test, beforeEach } from 'node:test';
 import assert from 'node:assert/strict';
 
 import StateModel from './stateModel.js';
-import Actions from './actions.js';
+import actions from './actions.js';
 
-import StateMachine from './StateMachine.js';
+import StateMachine, { validateModel } from './StateMachine.js';
 
 describe('StateMachine', () => {
   const PAYLOAD = { count: 0 };
   const { triggerEvent, revertState, getHistory } = StateMachine(
     StateModel(),
-    Actions,
+    actions,
     PAYLOAD
   );
 
@@ -78,7 +78,7 @@ describe('StateMachine', () => {
     assert.equal(getHistory()[0].state, 'tac');
     assert.equal(
       badTrigger,
-      "Error: The trigger 'again' could not be found for the current state of 'tac'."
+      "Warning: The trigger 'again' could not be found for the current state of 'tac'."
     );
   });
 
@@ -88,9 +88,92 @@ describe('StateMachine', () => {
     assert.equal(getHistory()[0].state, 'tac');
     assert.equal(
       badGuard,
-      "Error: The trigger 'badGuard' did not match a transistion for the current state of 'tac'."
+      "Warning: The trigger 'badGuard' did not match a transistion for the current state of 'tac'."
     );
   });
 });
 
-//      validationModel(StateModel, Actions)
+describe('validateModel', () => {
+  let stateModel = null;
+
+  beforeEach(() => {
+    stateModel = StateModel();
+  });
+
+  test('returns an empty string when valid', () => {
+    assert.equal(validateModel(stateModel, actions), '');
+  });
+
+  describe('initial state indicator', () => {
+    test('returns an error when not defined', () => {
+      delete stateModel['*'];
+      assert.equal(
+        validateModel(stateModel, actions),
+        'Error: No initial state indicator (*) found.'
+      );
+    });
+
+    test('returns an error when is invalid', () => {
+      stateModel['*'] = '*';
+      assert.equal(
+        validateModel(stateModel, actions),
+        'Error: An invalid initial state has been stipulated.'
+      );
+    });
+
+    test('returns an error when not found', () => {
+      stateModel['*'] = 'badState';
+      assert.equal(
+        validateModel(stateModel, actions),
+        `Error: The initial state 'badState' cannot be found in the model.`
+      );
+    });
+  });
+
+  describe('target states', () => {
+    test('returns an error when a trigger has an unknown state', () => {
+      stateModel.init.next[0].state = 'invalid';
+      assert.equal(
+        validateModel(stateModel, actions),
+        `Error: The 'next' trigger of the 'init' state has an invalid target state of 'invalid'.`
+      );
+    });
+
+    test('returns an error when a trigger has an unknown action', () => {
+      stateModel.init.next[0].guard = 'invalid';
+      assert.equal(
+        validateModel(stateModel, actions),
+        `Error: The 'next' trigger of the 'init' state has an invalid target guard of 'invalid'.`
+      );
+    });
+  });
+
+  describe('Actions', () => {
+    test('An error is reported for enter properties that are not functions', () => {
+      const initEntry = actions.init.enter;
+      actions.init.enter = 'invalid';
+      assert.equal(
+        validateModel(stateModel, actions),
+        `Error: The enter property for 'init' is not a function.`
+      );
+      actions.init.enter = initEntry;
+    });
+    test('An error is reported for exit properties that are not functions', () => {
+      const initExit = actions.init.exit;
+      actions.init.exit = 'invalid';
+      assert.equal(
+        validateModel(stateModel, actions),
+        `Error: The exit property for 'init' is not a function.`
+      );
+      actions.init.exit = initExit;
+    });
+    test('An error is reported for any guard properties that are not functions', () => {
+      actions.init.guards = { invalid: 'invalid' };
+      assert.equal(
+        validateModel(stateModel, actions),
+        `Error: The guard 'invalid' for 'init' is not a function.`
+      );
+      delete actions.init.guards;
+    });
+  });
+});

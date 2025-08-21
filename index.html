@@ -68,7 +68,7 @@
       import StateModel from './stateModel.js';
 
       const PAYLOAD = { count: 0 };
-      // console.log(validationModel(StateModel, Actions) ? 'isValid' : 'isInvalid');
+      console.log(validateModel(StateModel, Actions) ? 'isInvalid' : 'isValid');
       const { triggerEvent, revertState, getHistory } = StateMachine(
         StateModel,
         Actions,
